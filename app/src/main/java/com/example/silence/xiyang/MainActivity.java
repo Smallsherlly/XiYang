@@ -27,7 +27,7 @@ import com.stephentuso.welcome.WelcomeHelper;
 
 
 
-public class MainActivity extends Activity implements AdapterView.OnItemClickListener, ViewPager.OnPageChangeListener, OnItemClickListener{
+public class MainActivity extends Activity implements AdapterView.OnItemClickListener,ViewPager.OnPageChangeListener,OnItemClickListener {
     WelcomeHelper welcomeScreen;
 
     private ConvenientBanner convenientBanner;//顶部广告栏控件
@@ -54,6 +54,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
         initViews();
         init();
     }
+
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -63,12 +64,26 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
     private void initViews() {
         convenientBanner = (ConvenientBanner) findViewById(R.id.convenientBanner);
         listView = (ListView) findViewById(R.id.listView);
-        transformerArrayAdapter = new ArrayAdapter(this,R.layout.adapter_transformer,transformerList);
-        listView.setAdapter(transformerArrayAdapter);
         listView.setOnItemClickListener(this);
+        try {
+            Class cls = Class.forName("com.ToxicBakery.viewpager.transforms.CubeOutTransformer");
+            ABaseTransformer transforemer = (ABaseTransformer) cls.newInstance();
+            convenientBanner.getViewPager().setPageTransformer(true, transforemer);
+            if("CubeOutTransformer".equals("StackTransformer")){
+                convenientBanner.setScrollDuration(1200);
+            }
+
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+
     }
 
-    private void init(){
+    private void init() {
         initImageLoader();
         loadTestDatas();
         //本地图片例子
@@ -79,13 +94,12 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
                         return new LocalImageHolderView();
                     }
                 }, localImages)
-                //设置两个点图片作为翻页指示器，不设置则没有指示器，可以根据自己需求自行配合自己的指示器,不需要圆点指示器可用不设
+        //设置两个点图片作为翻页指示器，不设置则没有指示器，可以根据自己需求自行配合自己的指示器,不需要圆点指示器可用不设
                 .setPageIndicator(new int[]{R.drawable.ic_launcher_background, R.drawable.ic_launcher_background})
                 //设置指示器的方向
-//                .setPageIndicatorAlign(ConvenientBanner.PageIndicatorAlign.ALIGN_PARENT_RIGHT)
-//                .setOnPageChangeListener(this)//监听翻页事件
+             //   .setPageIndicatorAlign(ConvenientBanner.PageIndicatorAlign.ALIGN_PARENT_RIGHT)
+             //  .setOnPageChangeListener(this)//监听翻页事件
                 .setOnItemClickListener(this);
-
 //        convenientBanner.setManualPageable(false);//设置不能手动影响
 
         //网络加载例子
@@ -96,7 +110,6 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
 //                return new NetworkImageHolderView();
 //            }
 //        },networkImages);
-
 
 
 //手动New并且添加到ListView Header的例子
@@ -116,9 +129,42 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
 //                .setOnItemClickListener(this);
 //        listView.addHeaderView(mConvenientBanner);
     }
+    //点击切换效果
+    @Override
+    public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
 
+//        点击后加入两个内容
+//        localImages.clear();
+//        localImages.add(R.drawable.ic_test_2);
+//        localImages.add(R.drawable.ic_test_4);
+//        convenientBanner.notifyDataSetChanged();
+
+        //控制是否循环
+//        convenientBanner.setCanLoop(!convenientBanner.isCanLoop());
+
+
+        String transforemerName = transformerList.get(position);
+        try {
+            Class cls = Class.forName("com.ToxicBakery.viewpager.transforms." + transforemerName);
+            ABaseTransformer transforemer= (ABaseTransformer)cls.newInstance();
+            convenientBanner.getViewPager().setPageTransformer(true,transforemer);
+
+            //部分3D特效需要调整滑动速度
+            if(transforemerName.equals("StackTransformer")){
+                convenientBanner.setScrollDuration(1200);
+            }
+
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+
+    }
     //初始化网络图片缓存库
-    private void initImageLoader(){
+    private void initImageLoader() {
         //网络图片例子,结合常用的图片缓存库UIL,你可以根据自己需求自己换其他网络图片库
         DisplayImageOptions defaultOptions = new DisplayImageOptions.Builder().
                 showImageForEmptyUri(R.drawable.ic_launcher_background)
@@ -132,32 +178,15 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
                 .tasksProcessingOrder(QueueProcessingType.LIFO).build();
         ImageLoader.getInstance().init(config);
     }
+
     /*
     加入测试Views
     * */
     private void loadTestDatas() {
         //本地图片集合
-        for (int position = 0; position < 7; position++)
+        for (int position = 0; position < 3; position++)
             localImages.add(getResId("ic_test_" + position, R.drawable.class));
 
-
-//        //各种翻页效果
-        transformerList.add(DefaultTransformer.class.getSimpleName());
-        transformerList.add(AccordionTransformer.class.getSimpleName());
-        transformerList.add(BackgroundToForegroundTransformer.class.getSimpleName());
-        transformerList.add(CubeInTransformer.class.getSimpleName());
-        transformerList.add(CubeOutTransformer.class.getSimpleName());
-        transformerList.add(DepthPageTransformer.class.getSimpleName());
-        transformerList.add(FlipHorizontalTransformer.class.getSimpleName());
-        transformerList.add(FlipVerticalTransformer.class.getSimpleName());
-        transformerList.add(ForegroundToBackgroundTransformer.class.getSimpleName());
-        transformerList.add(RotateDownTransformer.class.getSimpleName());
-        transformerList.add(RotateUpTransformer.class.getSimpleName());
-        transformerList.add(StackTransformer.class.getSimpleName());
-        transformerList.add(ZoomInTransformer.class.getSimpleName());
-        transformerList.add(ZoomOutTranformer.class.getSimpleName());
-
-        transformerArrayAdapter.notifyDataSetChanged();
     }
 
     /**
@@ -193,40 +222,6 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
         convenientBanner.stopTurning();
     }
 
-    //点击切换效果
-    @Override
-    public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-
-//        点击后加入两个内容
-//        localImages.clear();
-//        localImages.add(R.drawable.ic_test_2);
-//        localImages.add(R.drawable.ic_test_4);
-//        convenientBanner.notifyDataSetChanged();
-
-        //控制是否循环
-//        convenientBanner.setCanLoop(!convenientBanner.isCanLoop());
-
-
-        String transforemerName = transformerList.get(position);
-        try {
-            Class cls = Class.forName("com.ToxicBakery.viewpager.transforms." + transforemerName);
-            ABaseTransformer transforemer= (ABaseTransformer)cls.newInstance();
-            convenientBanner.getViewPager().setPageTransformer(true,transforemer);
-
-            //部分3D特效需要调整滑动速度
-            if(transforemerName.equals("StackTransformer")){
-                convenientBanner.setScrollDuration(1200);
-            }
-
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        } catch (InstantiationException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        }
-
-    }
 
     @Override
     public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -235,7 +230,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
 
     @Override
     public void onPageSelected(int position) {
-        Toast.makeText(this,"监听到翻到第"+position+"了",Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "监听到翻到第" + position + "了", Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -244,7 +239,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
 
     @Override
     public void onItemClick(int position) {
-        Toast.makeText(this,"点击了第"+position+"个",Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "点击了第" + position + "个", Toast.LENGTH_SHORT).show();
     }
 }
 
