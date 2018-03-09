@@ -27,7 +27,7 @@ import com.stephentuso.welcome.WelcomeHelper;
 
 
 
-public class MainActivity extends Activity implements AdapterView.OnItemClickListener, ViewPager.OnPageChangeListener, OnItemClickListener {
+public class MainActivity extends Activity implements  ViewPager.OnPageChangeListener, OnItemClickListener {
     private ConvenientBanner convenientBanner;//顶部广告栏控件
     private ArrayList<Integer> localImages = new ArrayList<Integer>();
     private List<String> networkImages;
@@ -41,8 +41,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
     };
     WelcomeHelper welcomeScreen;
     private ListView listView;
-    private ArrayAdapter transformerArrayAdapter;
-    private ArrayList<String> transformerList = new ArrayList<String>();
+    private List<HandShow> handShowList = new ArrayList<HandShow>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,8 +49,20 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
         setContentView(R.layout.activity_main);
         welcomeScreen = new WelcomeHelper(this, MyWelcomeActivity.class);
         welcomeScreen.show(savedInstanceState);
+        initHandShow();
         initViews();
         init();
+    }
+    public void initHandShow(){
+        HandShow show_0 = new HandShow("手账0号",R.drawable.ic_launcher_background);
+        handShowList.add(show_0);
+        HandShow show_1 = new HandShow("手账1号",R.drawable.ic_launcher_background);
+        handShowList.add(show_1);
+        HandShow show_2 = new HandShow("手账2号",R.drawable.ic_launcher_background);
+        handShowList.add(show_2);
+        HandShow show_3 = new HandShow("手账3号",R.drawable.ic_launcher_background);
+        handShowList.add(show_3);
+
     }
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -60,10 +71,22 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
     }
     private void initViews() {
         convenientBanner = (ConvenientBanner) findViewById(R.id.convenientBanner);
+        HandShowAdapter adapter = new HandShowAdapter(MainActivity.this,R.layout.handshow,handShowList);
         listView = (ListView) findViewById(R.id.listView);
-        transformerArrayAdapter = new ArrayAdapter(this,R.layout.adapter_transformer,transformerList);
-        listView.setAdapter(transformerArrayAdapter);
-        listView.setOnItemClickListener(this);
+        listView.setAdapter(adapter);
+//        listView.setOnItemClickListener(this);
+
+        try {
+            Class cls = Class.forName("com.ToxicBakery.viewpager.transforms.RotateDownTransformer");//设置翻页效果
+            ABaseTransformer transforemer= (ABaseTransformer)cls.newInstance();
+            convenientBanner.getViewPager().setPageTransformer(true,transforemer);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
     }
 
     private void init(){
@@ -140,22 +163,22 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
 
 
 //        //各种翻页效果
-        transformerList.add(DefaultTransformer.class.getSimpleName());
-        transformerList.add(AccordionTransformer.class.getSimpleName());
-        transformerList.add(BackgroundToForegroundTransformer.class.getSimpleName());
-        transformerList.add(CubeInTransformer.class.getSimpleName());
-        transformerList.add(CubeOutTransformer.class.getSimpleName());
-        transformerList.add(DepthPageTransformer.class.getSimpleName());
-        transformerList.add(FlipHorizontalTransformer.class.getSimpleName());
-        transformerList.add(FlipVerticalTransformer.class.getSimpleName());
-        transformerList.add(ForegroundToBackgroundTransformer.class.getSimpleName());
-        transformerList.add(RotateDownTransformer.class.getSimpleName());
-        transformerList.add(RotateUpTransformer.class.getSimpleName());
-        transformerList.add(StackTransformer.class.getSimpleName());
-        transformerList.add(ZoomInTransformer.class.getSimpleName());
-        transformerList.add(ZoomOutTranformer.class.getSimpleName());
+//        transformerList.add(DefaultTransformer.class.getSimpleName());
+//        transformerList.add(AccordionTransformer.class.getSimpleName());
+//        transformerList.add(BackgroundToForegroundTransformer.class.getSimpleName());
+//        transformerList.add(CubeInTransformer.class.getSimpleName());
+//        transformerList.add(CubeOutTransformer.class.getSimpleName());
+//        transformerList.add(DepthPageTransformer.class.getSimpleName());
+//        transformerList.add(FlipHorizontalTransformer.class.getSimpleName());
+//        transformerList.add(FlipVerticalTransformer.class.getSimpleName());
+//        transformerList.add(ForegroundToBackgroundTransformer.class.getSimpleName());
+//        transformerList.add(RotateDownTransformer.class.getSimpleName());
+//        transformerList.add(RotateUpTransformer.class.getSimpleName());
+//        transformerList.add(StackTransformer.class.getSimpleName());
+//        transformerList.add(ZoomInTransformer.class.getSimpleName());
+//        transformerList.add(ZoomOutTranformer.class.getSimpleName());
 
-        transformerArrayAdapter.notifyDataSetChanged();
+//        transformerArrayAdapter.notifyDataSetChanged();
     }
 
     /**
@@ -192,39 +215,39 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
     }
 
     //点击切换效果
-    @Override
-    public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-
-//        点击后加入两个内容
-//        localImages.clear();
-//        localImages.add(R.drawable.ic_test_2);
-//        localImages.add(R.drawable.ic_test_4);
-//        convenientBanner.notifyDataSetChanged();
-
-        //控制是否循环
-//        convenientBanner.setCanLoop(!convenientBanner.isCanLoop());
-
-
-        String transforemerName = transformerList.get(position);
-        try {
-            Class cls = Class.forName("com.ToxicBakery.viewpager.transforms." + transforemerName);
-            ABaseTransformer transforemer= (ABaseTransformer)cls.newInstance();
-            convenientBanner.getViewPager().setPageTransformer(true,transforemer);
-
-            //部分3D特效需要调整滑动速度
-            if(transforemerName.equals("StackTransformer")){
-                convenientBanner.setScrollDuration(1200);
-            }
-
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        } catch (InstantiationException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        }
-
-    }
+ //   @Override
+//    public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+//
+////        点击后加入两个内容
+////        localImages.clear();
+////        localImages.add(R.drawable.ic_test_2);
+////        localImages.add(R.drawable.ic_test_4);
+////        convenientBanner.notifyDataSetChanged();
+//
+//        //控制是否循环
+////        convenientBanner.setCanLoop(!convenientBanner.isCanLoop());
+//
+//
+//        String transforemerName = transformerList.get(position);
+//        try {
+//            Class cls = Class.forName("com.ToxicBakery.viewpager.transforms." + transforemerName);
+//            ABaseTransformer transforemer= (ABaseTransformer)cls.newInstance();
+//            convenientBanner.getViewPager().setPageTransformer(true,transforemer);
+//
+//            //部分3D特效需要调整滑动速度
+//            if(transforemerName.equals("StackTransformer")){
+//                convenientBanner.setScrollDuration(1200);
+//            }
+//
+//        } catch (ClassNotFoundException e) {
+//            e.printStackTrace();
+//        } catch (InstantiationException e) {
+//            e.printStackTrace();
+//        } catch (IllegalAccessException e) {
+//            e.printStackTrace();
+//        }
+//
+//    }
 
     @Override
     public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
