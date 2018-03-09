@@ -10,10 +10,30 @@
         android:id="@+id/convenientBanner"
         android:layout_width="match_parent"
         android:layout_height="200dp"
-        app:canLoop="true"/>
+        app:canLoop="true" />
+
     <ListView
         android:id="@+id/listView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="0dp"
+        android:layout_weight="11"/>
+    <it.sephiroth.android.library.bottomnavigation.BottomNavigation
+        android:id="@+id/BottomNavigation"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="2"
+        android:layout_gravity="bottom"
+        app:bbn_entries="@menu/bottombar_menu_4items"
+
+        app:bbn_badgeProvider="@string/bbn_badgeProvider"
+        app:layout_behavior="@string/bbn_phone_view_behavior" />
+
+    <fragment
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:name="com.example.silence.xiyang.MyFragment"
+        android:id="@+id/fragment_1"/>
+
+
 
 </LinearLayout>
