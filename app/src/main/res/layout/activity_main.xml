@@ -30,7 +30,7 @@
 
     <fragmentlayout
         android:layout_width="match_parent"
-        android:layout_height="match_content"
+        android:layout_height="match_parent"
         android:name="com.example.silence.xiyang.MyFragment"
         android:id="@+id/fragment_1"/>
 
