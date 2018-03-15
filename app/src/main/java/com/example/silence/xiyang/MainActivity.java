@@ -1,11 +1,10 @@
 package com.example.silence.xiyang;
 
 import android.app.Activity;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -25,20 +24,14 @@ import java.util.List;
 
 import com.stephentuso.welcome.WelcomeHelper;
 
+import it.sephiroth.android.library.bottomnavigation.BadgeProvider;
+import it.sephiroth.android.library.bottomnavigation.BottomNavigation;
 
 
-public class MainActivity extends Activity implements  ViewPager.OnPageChangeListener, OnItemClickListener {
+public class MainActivity extends Activity implements  ViewPager.OnPageChangeListener, OnItemClickListener,BottomNavigation.OnMenuItemSelectionListener{
     private ConvenientBanner convenientBanner;//顶部广告栏控件
     private ArrayList<Integer> localImages = new ArrayList<Integer>();
-    private List<String> networkImages;
-    private String[] images = {"http://img2.imgtn.bdimg.com/it/u=3093785514,1341050958&fm=21&gp=0.jpg",
-            "http://img2.3lian.com/2014/f2/37/d/40.jpg",
-            "http://d.3987.com/sqmy_131219/001.jpg",
-            "http://img2.3lian.com/2014/f2/37/d/39.jpg",
-            "http://www.8kmm.com/UploadFiles/2012/8/201208140920132659.jpg",
-            "http://f.hiphotos.baidu.com/image/h%3D200/sign=1478eb74d5a20cf45990f9df460b4b0c/d058ccbf6c81800a5422e5fdb43533fa838b4779.jpg",
-            "http://f.hiphotos.baidu.com/image/pic/item/09fa513d269759ee50f1971ab6fb43166c22dfba.jpg"
-    };
+
     WelcomeHelper welcomeScreen;
     private ListView listView;
     private List<HandShow> handShowList = new ArrayList<HandShow>();
@@ -49,37 +42,72 @@ public class MainActivity extends Activity implements  ViewPager.OnPageChangeLis
         setContentView(R.layout.activity_main);
         welcomeScreen = new WelcomeHelper(this, MyWelcomeActivity.class);
         welcomeScreen.show(savedInstanceState);
+
+
         initHandShow();
         initViews();
         init();
+
     }
-    public void initHandShow(){
-        HandShow show_0 = new HandShow("手账0号",R.drawable.ic_launcher_background);
+    @Override
+    public void onMenuItemSelect(final int itemId, final int position, final boolean fromUser) {
+
+        if (fromUser) {
+            final FragmentManager manager = getFragmentManager();
+            FragmentTransaction transaction = manager.beginTransaction();
+            MyFragment fragment = (MyFragment) manager.findFragmentById(R.id.fragment_1);
+
+            if (null != fragment) {
+                transaction.show(fragment);
+            }
+        }
+    }
+    @Override
+    public void onMenuItemReselect(final int itemId, final int position, final boolean fromUser) {
+
+
+        if (fromUser) {
+            final FragmentManager manager = getFragmentManager();
+            FragmentTransaction transaction = manager.beginTransaction();
+            MyFragment fragment = (MyFragment) manager.findFragmentById(R.id.fragment_1);
+
+            if (null != fragment) {
+                transaction.show(fragment);
+            }
+        }
+
+    }
+
+
+    public void initHandShow() {
+        HandShow show_0 = new HandShow("手账0号", R.drawable.ic_page_indicator_focused);
         handShowList.add(show_0);
-        HandShow show_1 = new HandShow("手账1号",R.drawable.ic_launcher_background);
+        HandShow show_1 = new HandShow("手账1号", R.drawable.ic_page_indicator_focused);
         handShowList.add(show_1);
-        HandShow show_2 = new HandShow("手账2号",R.drawable.ic_launcher_background);
+        HandShow show_2 = new HandShow("手账2号", R.drawable.ic_page_indicator_focused);
         handShowList.add(show_2);
-        HandShow show_3 = new HandShow("手账3号",R.drawable.ic_launcher_background);
+        HandShow show_3 = new HandShow("手账3号", R.drawable.ic_page_indicator_focused);
         handShowList.add(show_3);
 
     }
+
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         welcomeScreen.onSaveInstanceState(outState);
     }
+
     private void initViews() {
         convenientBanner = (ConvenientBanner) findViewById(R.id.convenientBanner);
-        HandShowAdapter adapter = new HandShowAdapter(MainActivity.this,R.layout.handshow,handShowList);
+        HandShowAdapter adapter = new HandShowAdapter(MainActivity.this, R.layout.handshow, handShowList);
         listView = (ListView) findViewById(R.id.listView);
         listView.setAdapter(adapter);
 //        listView.setOnItemClickListener(this);
 
         try {
             Class cls = Class.forName("com.ToxicBakery.viewpager.transforms.RotateDownTransformer");//设置翻页效果
-            ABaseTransformer transforemer= (ABaseTransformer)cls.newInstance();
-            convenientBanner.getViewPager().setPageTransformer(true,transforemer);
+            ABaseTransformer transforemer = (ABaseTransformer) cls.newInstance();
+            convenientBanner.getViewPager().setPageTransformer(true, transforemer);
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         } catch (InstantiationException e) {
@@ -89,7 +117,7 @@ public class MainActivity extends Activity implements  ViewPager.OnPageChangeLis
         }
     }
 
-    private void init(){
+    private void init() {
         initImageLoader();
         loadTestDatas();
         //本地图片例子
@@ -104,42 +132,14 @@ public class MainActivity extends Activity implements  ViewPager.OnPageChangeLis
                 .setPageIndicator(new int[]{R.drawable.ic_page_indicator, R.drawable.ic_page_indicator_focused})
                 //设置指示器的方向
 //                .setPageIndicatorAlign(ConvenientBanner.PageIndicatorAlign.ALIGN_PARENT_RIGHT)
-//                .setOnPageChangeListener(this)//监听翻页事件
+
                 .setOnItemClickListener(this);
 
-//        convenientBanner.setManualPageable(false);//设置不能手动影响
 
-        //网络加载例子
-//        networkImages=Arrays.asList(images);
-//        convenientBanner.setPages(new CBViewHolderCreator<NetworkImageHolderView>() {
-//            @Override
-//            public NetworkImageHolderView createHolder() {
-//                return new NetworkImageHolderView();
-//            }
-//        },networkImages);
-
-
-
-//手动New并且添加到ListView Header的例子
-//        ConvenientBanner mConvenientBanner = new ConvenientBanner(this,false);
-//        mConvenientBanner.setMinimumHeight(500);
-//        mConvenientBanner.setPages(
-//                new CBViewHolderCreator<LocalImageHolderView>() {
-//                    @Override
-//                    public LocalImageHolderView createHolder() {
-//                        return new LocalImageHolderView();
-//                    }
-//                }, localImages)
-//                //设置两个点图片作为翻页指示器，不设置则没有指示器，可以根据自己需求自行配合自己的指示器,不需要圆点指示器可用不设
-//                .setPageIndicator(new int[]{R.drawable.ic_page_indicator, R.drawable.ic_page_indicator_focused})
-//                        //设置指示器的方向
-//                .setPageIndicatorAlign(ConvenientBanner.PageIndicatorAlign.ALIGN_PARENT_RIGHT)
-//                .setOnItemClickListener(this);
-//        listView.addHeaderView(mConvenientBanner);
     }
 
     //初始化网络图片缓存库
-    private void initImageLoader(){
+    private void initImageLoader() {
         //网络图片例子,结合常用的图片缓存库UIL,你可以根据自己需求自己换其他网络图片库
         DisplayImageOptions defaultOptions = new DisplayImageOptions.Builder().
                 showImageForEmptyUri(R.drawable.ic_default_adimage)
@@ -153,6 +153,7 @@ public class MainActivity extends Activity implements  ViewPager.OnPageChangeLis
                 .tasksProcessingOrder(QueueProcessingType.LIFO).build();
         ImageLoader.getInstance().init(config);
     }
+
     /*
     加入测试Views
     * */
@@ -160,25 +161,6 @@ public class MainActivity extends Activity implements  ViewPager.OnPageChangeLis
         //本地图片集合
         for (int position = 0; position < 3; position++)
             localImages.add(getResId("ic_test_" + position, R.drawable.class));
-
-
-//        //各种翻页效果
-//        transformerList.add(DefaultTransformer.class.getSimpleName());
-//        transformerList.add(AccordionTransformer.class.getSimpleName());
-//        transformerList.add(BackgroundToForegroundTransformer.class.getSimpleName());
-//        transformerList.add(CubeInTransformer.class.getSimpleName());
-//        transformerList.add(CubeOutTransformer.class.getSimpleName());
-//        transformerList.add(DepthPageTransformer.class.getSimpleName());
-//        transformerList.add(FlipHorizontalTransformer.class.getSimpleName());
-//        transformerList.add(FlipVerticalTransformer.class.getSimpleName());
-//        transformerList.add(ForegroundToBackgroundTransformer.class.getSimpleName());
-//        transformerList.add(RotateDownTransformer.class.getSimpleName());
-//        transformerList.add(RotateUpTransformer.class.getSimpleName());
-//        transformerList.add(StackTransformer.class.getSimpleName());
-//        transformerList.add(ZoomInTransformer.class.getSimpleName());
-//        transformerList.add(ZoomOutTranformer.class.getSimpleName());
-
-//        transformerArrayAdapter.notifyDataSetChanged();
     }
 
     /**
@@ -214,41 +196,6 @@ public class MainActivity extends Activity implements  ViewPager.OnPageChangeLis
         convenientBanner.stopTurning();
     }
 
-    //点击切换效果
- //   @Override
-//    public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-//
-////        点击后加入两个内容
-////        localImages.clear();
-////        localImages.add(R.drawable.ic_test_2);
-////        localImages.add(R.drawable.ic_test_4);
-////        convenientBanner.notifyDataSetChanged();
-//
-//        //控制是否循环
-////        convenientBanner.setCanLoop(!convenientBanner.isCanLoop());
-//
-//
-//        String transforemerName = transformerList.get(position);
-//        try {
-//            Class cls = Class.forName("com.ToxicBakery.viewpager.transforms." + transforemerName);
-//            ABaseTransformer transforemer= (ABaseTransformer)cls.newInstance();
-//            convenientBanner.getViewPager().setPageTransformer(true,transforemer);
-//
-//            //部分3D特效需要调整滑动速度
-//            if(transforemerName.equals("StackTransformer")){
-//                convenientBanner.setScrollDuration(1200);
-//            }
-//
-//        } catch (ClassNotFoundException e) {
-//            e.printStackTrace();
-//        } catch (InstantiationException e) {
-//            e.printStackTrace();
-//        } catch (IllegalAccessException e) {
-//            e.printStackTrace();
-//        }
-//
-//    }
-
     @Override
     public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
 
@@ -256,7 +203,7 @@ public class MainActivity extends Activity implements  ViewPager.OnPageChangeLis
 
     @Override
     public void onPageSelected(int position) {
-        Toast.makeText(this,"监听到翻到第"+position+"了",Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "监听到翻到第" + position + "了", Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -265,6 +212,7 @@ public class MainActivity extends Activity implements  ViewPager.OnPageChangeLis
 
     @Override
     public void onItemClick(int position) {
-        Toast.makeText(this,"点击了第"+position+"个",Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "点击了第" + position + "个", Toast.LENGTH_SHORT).show();
     }
+
 }
